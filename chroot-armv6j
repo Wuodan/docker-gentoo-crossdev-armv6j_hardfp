@@ -9,12 +9,8 @@ mount -t proc none proc
 mount -o bind /dev dev
 mkdir -p usr/portage
 mkdir -p usr/local/portage
-mkdir -p usr/src/linux
-mkdir -p lib/modules
 mount -o bind /usr/portage usr/portage
 mount -o bind /usr/local/portage usr/local/portage
-mount -o bind /usr/src/raspberrypi-sources usr/src/linux
-mount -o bind /lib/modules lib/modules
 mount -o bind /sys sys
 cp /etc/resolv.conf etc/resolv.conf
 mount -o bind /tmp tmp
@@ -25,8 +21,6 @@ chroot . /bin/bash --login
 #umount dev/pts
 umount tmp
 umount sys
-umount lib/modules
-umount usr/src/linux
 umount usr/local/portage
 umount usr/portage
 umount dev
