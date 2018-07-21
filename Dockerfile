@@ -1,17 +1,20 @@
 FROM wuodan/gentoo-crossdev
 
+# Set the STAGE3_VERSION env variable
+ENV STAGE3_DATE 20180630
+ENV STAGE3_URI=https://files.emjay-embedded.co.uk/unofficial-gentoo/arm-stages/profile-13.0/armv6j/testing/stage3-armv6j_hardfp-"${STAGE3_DATE}".tar.bz2
+ENV STAGE3_SHA512 7d23eab867e574dc1d3da5195ee0ca7ded27f9e8884000b2c3251718ba349d37bc3717e5c630566273c69d0dc7525091765e34c4f7b26ed9b6d70b013fe9c3e8
+
 ARG TARGET=armv6j-hardfloat-linux-gnueabi
 
 # create toolchain
 RUN crossdev --stable -t "${TARGET}"
 
-# copy the entire stage3 volume to crossdev target
-COPY stage3-armv6j_hardfp-20180421.tar.bz2.part.* /tmp/
-
-# join the stage3 tar.bz2
-RUN cat /tmp/stage3-armv6j_hardfp-20180421.tar.bz2.part.* > /tmp/stage3-armv6j_hardfp-20180421.tar.bz2 && \
-	tar xpf /tmp/stage3-armv6j_hardfp-20180421.tar.bz2 --xattrs-include='*.*' --numeric-owner -C /usr/${TARGET}/ && \
-	rm /tmp/stage3-armv6j_hardfp-20180421.tar.bz2*
+RUN cd /tmp \
+	&& curl -O "${STAGE3_URI}" \
+	&& sha512sum stage3-armv6j_hardfp-$STAGE3_DATE.tar.bz2 | grep -q $STAGE3_SHA512 \
+	&& tar xpf stage3-armv6j_hardfp-$STAGE3_DATE.tar.bz2 --xattrs-include='*.*' --numeric-owner -C /usr/${TARGET}/ \
+	&& rm stage3-armv6j_hardfp-$STAGE3_DATE.tar.bz2
 
 # set target make.conf
 COPY make.conf.arm /usr/${TARGET}/etc/portage/make.conf
